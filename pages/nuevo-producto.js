@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Layout from "../components/layout/Layout";
+import FileUploader from "react-firebase-file-uploader";
 import { css } from "@emotion/core";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import {
   Formulario,
   Campo,
@@ -9,16 +10,16 @@ import {
   Error,
 } from "../components/ui/Formulario";
 
-import firebase from "../firebase";
+import { FirebaseContext } from "../firebase";
 
 //validaciones
 import useValidacion from "../hooks/useValidacion";
-import validarCrearCuenta from "../validacion/validarCrearCuenta";
+import validarCrearProducto from "../validacion/validarCrearProducto";
 
 const STATE_INICIAL = {
   nombre: "",
   empresa: "",
-  imagen: "",
+  //imagen: "",
   url: "",
   descripcion: "",
 };
@@ -26,17 +27,78 @@ const STATE_INICIAL = {
 export default function NuevoProducto() {
   const [error, guardarError] = useState(false);
 
+  //state de las imagenes
+  const [nombreImagen, guardarNombre] = useState("");
+  const [subiendo, guardarSubiendo] = useState(false);
+  const [progreso, guardarProgreso] = useState(0);
+  const [urlImagen, guardarUrlImagen] = useState("");
+
+  //context con las operaciones crud de firebase
+  const { usuario, firebase } = useContext(FirebaseContext);
+
   const {
     valores,
     errores,
     handleChange,
     handleSubmit,
     handleBlur,
-  } = useValidacion(STATE_INICIAL, validarCrearCuenta, crearCuenta);
+  } = useValidacion(STATE_INICIAL, validarCrearProducto, crearProducto);
 
   const { nombre, empresa, imagen, url, descripcion } = valores;
 
-  async function crearCuenta() {}
+  //hook de routing para redireccionar
+  const router = useRouter();
+
+  async function crearProducto() {
+    //Si el usuario no esta autenticado levar al login
+    if (!usuario) {
+      return router.push("login");
+    }
+
+    //crear el objeto de nuevo producto
+    const producto = {
+      nombre,
+      empresa,
+      url,
+      urlImagen,
+      descripcion,
+      votos: 0,
+      comentarios: [],
+      creado: Date.now(),
+    };
+
+    //insertarlo en la base de datos
+    firebase.db.collection("productos").add(producto);
+
+    return router.push("/");
+  }
+
+  //funciones para subir imagenes
+  const handleUploadStart = () => {
+    guardarProgreso(0);
+    guardarSubiendo(false);
+  };
+
+  const handleProgress = (progreso) => guardarProgreso({ progreso });
+
+  const handleUploadError = (error) => {
+    guardarSubiendo(error);
+    console.log(error);
+  };
+
+  const handleUploadSuccess = (nombre) => {
+    guardarProgreso(100);
+    guardarSubiendo(false);
+    guardarNombre(nombre);
+    firebase.storage
+      .ref("productos")
+      .child(nombre)
+      .getDownloadURL()
+      .then((url) => {
+        console.log(url);
+        guardarUrlImagen(url);
+      });
+  };
 
   return (
     <Layout>
@@ -83,16 +145,18 @@ export default function NuevoProducto() {
 
             <Campo>
               <label htmlFor="imagen">Imagen</label>
-              <input
-                type="file"
+              <FileUploader
+                accept="image/*"
                 id="imagen"
                 name="imagen"
-                value={imagen}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                randomizeFilename
+                storageRef={firebase.storage.ref("productos")}
+                onUploadStart={handleUploadStart}
+                onUploadError={handleUploadError}
+                onUploadSuccess={handleUploadSuccess}
+                onProgress={handleProgress}
               />
             </Campo>
-            {errores.imagen && <Error>{errores.imagen}</Error>}
 
             <Campo>
               <label htmlFor="url">URL</label>
@@ -122,6 +186,7 @@ export default function NuevoProducto() {
                 onBlur={handleBlur}
               />
             </Campo>
+            {errores.descripcion && <Error>{errores.descripcion}</Error>}
           </fieldset>
 
           {error && <Error> {error} </Error>}
