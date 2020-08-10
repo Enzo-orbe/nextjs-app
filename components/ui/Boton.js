@@ -5,6 +5,7 @@ const Boton = styled.a`
   font-weight: 700;
   text-transform: uppercase;
   border: 1px solid #d1d1d1;
+  border-radius: 5px;
   padding: 0.8rem 2rem;
   margin: 2rem auto;
   margin-right: 1rem;

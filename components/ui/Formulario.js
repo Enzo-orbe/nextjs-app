@@ -43,6 +43,7 @@ export const InputSubmit = styled.input`
   font-size: 1.8rem;
   text-transform: uppercase;
   border: none;
+  border-radius: 5px;
   font-family: "PT Sans", sans-serif;
   font-weight: 700;
 

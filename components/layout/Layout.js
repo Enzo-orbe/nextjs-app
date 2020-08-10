@@ -9,29 +9,25 @@ const Layout = (props) => {
       <Global
         styles={css`
           :root {
-            --gris: #3d3d3d3d;
-            --gris2: #6f6f6f6f;
-            --gris3: #e1e1e1e1;
+            --gris: #3d3d3d;
+            --gris2: #6f6f6f;
+            --gris3: #e1e1e1;
             --naranja: #da552f;
           }
-
           html {
             font-size: 62.5%;
             box-sizing: border-box;
           }
-
           *,
           *:before,
           *:after {
             box-sizing: inherit;
           }
-
           body {
             font-size: 1.6rem;
             line-height: 1.5;
             font-family: "PT Sans", sans-serif;
           }
-
           h1,
           h2,
           h3 {
@@ -54,17 +50,19 @@ const Layout = (props) => {
           a {
             text-decoration: none;
           }
+          img {
+            max-width: 100%;
+          }
         `}
       />
 
       <Head>
-        <html lang="es" />
         <title>Product Hunt Firebase y Next.js</title>
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
           integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
-          crossorigin="anonymous"
+          crossOrigin="anonymous"
         />
         <link
           href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Roboto:wght@400;700&display=swap"

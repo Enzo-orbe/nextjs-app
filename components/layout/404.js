@@ -10,7 +10,7 @@ export default function Error404() {
           text-align: center;
         `}
       >
-        Producto no existente
+        Nesecitas iniciar sesion para ingresar a esta pagina
       </h1>
     </div>
   );
